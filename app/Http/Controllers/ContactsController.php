@@ -14,7 +14,7 @@ class ContactsController extends Controller
      */
     public function index()
     {
-        //
+        return Contact::all();
     }
 
     /**
@@ -22,9 +22,10 @@ class ContactsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function birthdays()
     {
-        //
+        // return now()->format('m');
+        return Contact::where('birthday', 'LIKE', "%-" . now()->format('m') . "-%")->get();
     }
 
     /**
@@ -35,9 +36,16 @@ class ContactsController extends Controller
      */
     public function store(Request $request)
     {
-        Contact::create([
-            'name' => $request->name
+        $data = $request->validate([
+            'name'     => 'required',
+            'email'    => 'required|email',
+            'birthday' => 'required|date',
+            'company'  => 'required',
         ]);
+
+        $contact = Contact::create($data);
+
+        return $contact;
     }
 
     /**
@@ -46,9 +54,9 @@ class ContactsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Contact $contact)
     {
-        //
+        return $contact;
     }
 
     /**
@@ -57,9 +65,10 @@ class ContactsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function search()
     {
-        //
+        $term = request()->searchTerm;
+        return Contact::where('name', 'LIKE', "%$term%")->get();
     }
 
     /**
@@ -69,9 +78,16 @@ class ContactsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Contact $contact)
     {
-        //
+        $data = $request->validate([
+            'name'     => 'required',
+            'email'    => 'required|email',
+            'birthday' => 'required',
+            'company'  => 'required',
+        ]);
+
+        $contact->update($data);
     }
 
     /**
@@ -80,8 +96,8 @@ class ContactsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Contact $contact)
     {
-        //
+        $contact->delete();
     }
 }
